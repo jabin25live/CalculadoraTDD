@@ -14,12 +14,12 @@ jobs:
     - name: Checkout del código
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0  # Requerido por SonarCloud para un análisis preciso
+        fetch-depth: 0
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x' # Ajusta si usas .NET 6 o 7
+        dotnet-version: '8.0.x'
 
     - name: Instalar SonarScanner globalmente
       run: dotnet tool install --global dotnet-sonarscanner
@@ -28,15 +28,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      # AQUI ESTA EL PRIMER CAMBIO: Le indicamos la ruta absoluta a SonarQube
-      run: dotnet sonarscanner begin /k:"jabin25live_Calculadora" /o:"jabin25live" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/coverage.opencover.xml"
+      run: dotnet sonarscanner begin /k:"jabin25live_Calculadora" /o:"jabin25live" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
-    - name: Compilar el proyecto
-      run: dotnet build --no-incremental
-
-    - name: Ejecutar pruebas y generar cobertura
-      # AQUI ESTA EL SEGUNDO CAMBIO: Obligamos a Coverlet a guardar el XML en la raíz absoluta
-      run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${{ github.workspace }}/coverage.opencover.xml"
+    - name: Construir, Probar y Generar Cobertura
+      # Eliminamos el --no-build para permitir que Coverlet analice el código mientras se compila
+      run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
     - name: Finalizar análisis y enviar a SonarCloud
       env:
