@@ -30,9 +30,16 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: dotnet sonarscanner begin /k:"jabin25live_Calculadora" /o:"jabin25live" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
-    - name: Construir, Probar y Generar Cobertura
-      # Eliminamos el --no-build para permitir que Coverlet analice el código mientras se compila
-      run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    - name: Compilar el proyecto
+      run: dotnet build --no-incremental
+
+    - name: Ejecutar pruebas con recolector nativo
+      # Este comando agrupa el reporte en una carpeta llamada "TestResults"
+      run: dotnet test --verbosity normal --collect:"XPlat Code Coverage;Format=opencover" --results-directory ./TestResults
+
+    - name: Verificar dónde se guardó el archivo (Debugging)
+      # Esto imprimirá en los logs de GitHub la ruta exacta del XML
+      run: find . -name "coverage.opencover.xml"
 
     - name: Finalizar análisis y enviar a SonarCloud
       env:
