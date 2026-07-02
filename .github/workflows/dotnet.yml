@@ -26,7 +26,6 @@ jobs:
 
     - name: Iniciar análisis de SonarCloud
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       # Apuntamos el escáner EXACTAMENTE a la raíz del servidor
       run: dotnet sonarscanner begin /k:"jabin25live_Calculadora" /o:"jabin25live" /d:sonar.token="$SONAR_TOKEN" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/coverage.opencover.xml"
